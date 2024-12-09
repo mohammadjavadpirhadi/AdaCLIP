@@ -2,7 +2,7 @@ import os
 import json
 import random
 # from dataset import MVTEC_ROOT
-MVTEC_ROOT = "../datasets/MVTec-AD"
+MVTEC_ROOT = "../datasets/mvtec_anomaly_detection"
 
 class MVTecSolver(object):
     CLSNAMES = [
