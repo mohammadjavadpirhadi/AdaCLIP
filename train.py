@@ -70,16 +70,17 @@ def train(args):
         target_transform=model.transform,
         training=True)
 
-    test_data_cls_names, test_data, test_data_root = get_data(
-        dataset_type_list=args.testing_data,
-        transform=model.preprocess,
-        target_transform=model.transform,
-        training=False)
+    # test_data_cls_names, test_data, test_data_root = get_data(
+    #     dataset_type_list=args.testing_data,
+    #     transform=model.preprocess,
+    #     target_transform=model.transform,
+    #     training=False)
 
-    logger.info('Data Root: training, {:}; testing, {:}'.format(train_data_root, test_data_root))
+    # logger.info('Data Root: training, {:}; testing, {:}'.format(train_data_root, test_data_root))
+    logger.info('Data Root: training, {:}'.format(train_data_root))
 
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=8)
-    test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=8)
+    # test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=8)
 
     # Typically, we use MVTec or VisA as the validation set. The best model from this validation
     # process is then used for zero-shot anomaly detection on novel categories.
