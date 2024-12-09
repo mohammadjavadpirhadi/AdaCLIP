@@ -1,5 +1,5 @@
 # pre-trained from MVTec and ColonDB
-ckt_path="weights/pretrained_mvtec_colondb.pth"
+ckt_path="weights/pretrained_mvtec.pth"
 gpu_id=0
 
 # CUDA_VISIBLE_DEVICES=$gpu_id python test.py --testing_model dataset --ckt_path $ckt_path --save_fig True --testing_data br35h
