@@ -88,6 +88,9 @@ def train(args):
     for epoch in tqdm(range(epochs)):
         loss = model.train_epoch(train_dataloader)
 
+        ckp_path_epoch = ckp_path + f'_{epoch}.pth'
+        model.save(ckp_path_epoch)
+
         # Logs
         if (epoch + 1) % args.print_freq == 0:
             logger.info('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, epochs, loss))
