@@ -93,38 +93,38 @@ def train(args):
             logger.info('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, epochs, loss))
             tensorboard_logger.add_scalar('loss', loss, epoch)
 
-        # Validation
-        if (epoch + 1) % args.valid_freq == 0 or (epoch == epochs - 1):
-            if epoch == epochs - 1:
-                save_fig_flag = save_fig
-            else:
-                save_fig_flag = False
+        # # Validation
+        # if (epoch + 1) % args.valid_freq == 0 or (epoch == epochs - 1):
+        #     if epoch == epochs - 1:
+        #         save_fig_flag = save_fig
+        #     else:
+        #         save_fig_flag = False
 
-            logger.info('=============================Testing ====================================')
-            metric_dict = model.evaluation(
-                test_dataloader,
-                test_data_cls_names,
-                save_fig_flag,
-                image_dir,
-            )
+        #     logger.info('=============================Testing ====================================')
+        #     metric_dict = model.evaluation(
+        #         test_dataloader,
+        #         test_data_cls_names,
+        #         save_fig_flag,
+        #         image_dir,
+        #     )
 
-            log_metrics(
-                metric_dict,
-                logger,
-                tensorboard_logger,
-                epoch
-            )
+        #     log_metrics(
+        #         metric_dict,
+        #         logger,
+        #         tensorboard_logger,
+        #         epoch
+        #     )
 
-            f1_px = metric_dict['Average']['f1_px']
+        #     f1_px = metric_dict['Average']['f1_px']
 
-            # Save best
-            if f1_px > best_f1:
-                for k in metric_dict.keys():
-                    write2csv(metric_dict[k], test_data_cls_names, k, csv_path)
+        #     # Save best
+        #     if f1_px > best_f1:
+        #         for k in metric_dict.keys():
+        #             write2csv(metric_dict[k], test_data_cls_names, k, csv_path)
 
-                ckp_path_best = ckp_path + '_best.pth'
-                model.save(ckp_path_best)
-                best_f1 = f1_px
+        #         ckp_path_best = ckp_path + '_best.pth'
+        #         model.save(ckp_path_best)
+        #         best_f1 = f1_px
 
 
 
