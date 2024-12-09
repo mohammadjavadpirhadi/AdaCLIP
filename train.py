@@ -86,7 +86,7 @@ def train(args):
     # process is then used for zero-shot anomaly detection on novel categories.
     best_f1 = -1e1
 
-    for epoch in tqdm(range(epochs)):
+    for epoch in range(epochs):
         loss = model.train_epoch(train_dataloader)
 
         ckp_path_epoch = ckp_path + f'_{epoch}.pth'
