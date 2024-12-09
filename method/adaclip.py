@@ -220,9 +220,9 @@ class TextEmbebddingLayer(nn.Module):
 
             class_embeddings = model.encode_text(prompted_sentence)
 
-            class_embeddings /= class_embeddings.norm(dim=-1, keepdim=True)
+            class_embeddings = class_embeddings / class_embeddings.norm(dim=-1, keepdim=True)
             class_embedding = class_embeddings.mean(dim=0)
-            class_embedding /= class_embedding.norm()
+            class_embedding = class_embedding / class_embedding.norm()
             text_features.append(class_embedding)
 
         text_features = torch.stack(text_features, dim=1)
@@ -479,11 +479,11 @@ class AdaCLIP(nn.Module):
         # for patch tokens
         proj_patch_tokens = self.patch_token_layer(patch_tokens)
         for layer in range(len(proj_patch_tokens)):
-            proj_patch_tokens[layer] /= proj_patch_tokens[layer].norm(dim=-1, keepdim=True)
+            proj_patch_tokens[layer] = proj_patch_tokens[layer] / proj_patch_tokens[layer].norm(dim=-1, keepdim=True)
 
         # for cls tokens
         proj_cls_tokens = self.cls_token_layer(image_features)[0]
-        proj_cls_tokens /= proj_cls_tokens.norm(dim=-1, keepdim=True)
+        proj_cls_tokens = proj_cls_tokens / proj_cls_tokens.norm(dim=-1, keepdim=True)
 
         return proj_cls_tokens, proj_patch_tokens
 
@@ -581,4 +581,3 @@ class AdaCLIP(nn.Module):
             anomaly_score = anomaly_score
 
             return anomaly_maps, anomaly_score
-
