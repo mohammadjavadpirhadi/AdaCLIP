@@ -1,7 +1,7 @@
 from typing import Union, List, Optional
 import numpy as np
 import torch
-from pkg_resources import packaging
+# from pkg_resources import packaging
 from torch import nn
 from torch.nn import functional as F
 from .clip_model import CLIP
@@ -168,10 +168,11 @@ class TextEmbebddingLayer(nn.Module):
         sot_token = self.tokenizer.encoder["<|startoftext|>"]
         eot_token = self.tokenizer.encoder["<|endoftext|>"]
         all_tokens = [[sot_token] + self.tokenizer.encode(text) + [eot_token] for text in texts]
-        if packaging.version.parse(torch.__version__) < packaging.version.parse("1.8.0"):
-            result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
-        else:
-            result = torch.zeros(len(all_tokens), context_length, dtype=torch.int)
+        # if packaging.version.parse(torch.__version__) < packaging.version.parse("1.8.0"):
+        #     result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
+        # else:
+        #     result = torch.zeros(len(all_tokens), context_length, dtype=torch.int)
+        result = torch.zeros(len(all_tokens), context_length, dtype=torch.int)
 
         for i, tokens in enumerate(all_tokens):
             if len(tokens) > context_length:
