@@ -178,7 +178,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    train(args)
+    # train(args)
 
     if args.batch_size != 1:
         raise NotImplementedError(
