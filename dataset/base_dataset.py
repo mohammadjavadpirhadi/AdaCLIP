@@ -42,7 +42,11 @@ class BaseDataset(data.Dataset):
         solver = DataSolver(root, clsnames)
         meta_info = solver.run()
 
-        self.meta_info = meta_info['test']  # Only utilize the test dataset for both training and testing
+        # self.meta_info = meta_info['test']  # Only utilize the test dataset for both training and testing
+        self.meta_info = {}
+        for k in meta_info['test'].keys():
+            self.meta_info[k] = meta_info['train'][k] + meta_info['test'][k]
+
         for cls_name in self.cls_names:
             self.data_all.extend(self.meta_info[cls_name])
 
