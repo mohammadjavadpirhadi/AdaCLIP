@@ -75,7 +75,7 @@ def train(args):
     ).to(device)
 
     # Wrap the model with DistributedDataParallel
-    model.clip_model = DDP(model.clip_model, device_ids=[local_rank], output_device=local_rank)
+    model.clip_model = DDP(model.clip_model, device_ids=[local_rank], output_device=local_rank, find_unused_parameters=True)
     model = model.to(device)
 
     # Load data
