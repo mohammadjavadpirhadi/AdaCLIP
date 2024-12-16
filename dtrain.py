@@ -13,7 +13,8 @@ from torch.utils.data import WeightedRandomSampler
 import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-from WRDS import WeightedRandomDistributedSampler
+# from WRDS import WeightedRandomDistributedSampler
+from PDS import PairedDistributedSampler
 
 # Importing from local modules
 from tools import write2csv, setup_paths, setup_seed, log_metrics, Logger
@@ -22,6 +23,17 @@ from method import AdaCLIP_Trainer
 
 global_seed = 111
 setup_seed(global_seed)
+
+def get_pos_neg_sample_indices(dataset):
+    pos_indices = []
+    neg_indices = []
+    for datum_index, datum in enumerate(dataset.data_all):
+        if datum['anomaly']:
+            pos_indices.append(datum_index)
+        else:
+            neg_indices.append(datum_index)
+
+    return pos_indices, neg_indices
 
 def calculate_sample_weigths(dataset):
     all_labels = []
@@ -108,14 +120,16 @@ def train(args):
 
     # Use DistributedSampler for training
     # train_sampler = DistributedSampler(train_data)
-    train_weights, train_samples_per_epoch = calculate_sample_weigths(dataset=train_data)
-    train_sampler = WeightedRandomDistributedSampler(weights=train_weights, num_samples=train_samples_per_epoch, seed=global_seed, replacement=False)
-    # train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
-    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4)
-    
     # train_dataloader = torch.utils.data.DataLoader(
     #     train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4
     # )
+
+    # train_weights, train_samples_per_epoch = calculate_sample_weigths(dataset=train_data)
+    # train_sampler = WeightedRandomDistributedSampler(weights=train_weights, num_samples=train_samples_per_epoch, seed=global_seed, replacement=False)
+    # train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4)
+
+    train_sampler = PairedDistributedSampler(*get_pos_neg_sample_indices(dataset=train_data))
+    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4)
 
     best_f1 = -1e1
 

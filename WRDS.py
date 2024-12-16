@@ -6,7 +6,7 @@ import torch.distributed as dist
 from torch.utils.data.sampler import Sampler
 
 
-__all__ = ["DistributedSampler"]
+__all__ = ["WeightedRandomDistributedSampler"]
 
 
 _T_co = TypeVar("_T_co", covariant=True)
