@@ -76,7 +76,7 @@ class PairedDistributedSampler(Sampler[_T_co]):
         indices = []
         for i in range(self.bottleneck_length):
             current_pair = [pos_indices[i], neg_indices[i]]
-            random.suffle(current_pair)
+            random.shuffle(current_pair)
             indices.extend(current_pair)
 
         if not self.drop_last:
