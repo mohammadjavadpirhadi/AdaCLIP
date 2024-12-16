@@ -13,14 +13,32 @@ from torch.utils.data import WeightedRandomSampler
 import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-from torch.utils.data.distributed import DistributedSampler
+from WRDS import WeightedRandomDistributedSampler
 
 # Importing from local modules
 from tools import write2csv, setup_paths, setup_seed, log_metrics, Logger
 from dataset import get_data
 from method import AdaCLIP_Trainer
 
-setup_seed(111)
+global_seed = 111
+setup_seed(global_seed)
+
+def calculate_sample_weigths(dataset):
+    all_labels = []
+    for datum in dataset.data_all:
+        all_labels.append(datum['anomaly'])
+    pos_count = all_labels.count(1)
+    neg_count = len(all_labels) - pos_count
+    neg_weight = pos_count / neg_count
+    weights = []
+    for label in all_labels:
+        weights.append(1 if label else neg_weight)
+    # pos_weight = 
+    # print(len(dataset), len(all_labels), pos_count, neg_count, neg_weight, neg_weight*neg_count, pos_count)
+    # print(sum(weights), sum(weights)/len(weights))
+    # print(weights[:100])
+    # raise
+    return weights, pos_count*2
 
 def train(args):
     # Initialize the distributed process group
@@ -89,10 +107,15 @@ def train(args):
         logger.info('Data Root: training, {:}'.format(train_data_root))
 
     # Use DistributedSampler for training
-    train_sampler = DistributedSampler(train_data)
-    train_dataloader = torch.utils.data.DataLoader(
-        train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4
-    )
+    # train_sampler = DistributedSampler(train_data)
+    train_weights, train_samples_per_epoch = calculate_sample_weigths(dataset=train_data)
+    train_sampler = WeightedRandomDistributedSampler(weights=train_weights, num_samples=train_samples_per_epoch, seed=global_seed, replacement=False)
+    # train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
+    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4)
+    
+    # train_dataloader = torch.utils.data.DataLoader(
+    #     train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4
+    # )
 
     best_f1 = -1e1
 
