@@ -41,7 +41,7 @@ def calculate_sample_weigths(dataset):
         all_labels.append(datum['anomaly'])
     pos_count = all_labels.count(1)
     neg_count = len(all_labels) - pos_count
-    neg_weight = pos_count / neg_count
+    neg_weight = (pos_count/4) / neg_count
     weights = []
     for label in all_labels:
         weights.append(1 if label else neg_weight)
@@ -50,7 +50,7 @@ def calculate_sample_weigths(dataset):
     # print(sum(weights), sum(weights)/len(weights))
     # print(weights[:100])
     # raise
-    return weights, pos_count*2
+    return weights, pos_count
 
 def train(args):
     # Initialize the distributed process group
@@ -124,12 +124,12 @@ def train(args):
     #     train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4
     # )
 
-    # train_weights, train_samples_per_epoch = calculate_sample_weigths(dataset=train_data)
-    # train_sampler = WeightedRandomDistributedSampler(weights=train_weights, num_samples=train_samples_per_epoch, seed=global_seed, replacement=False)
-    # train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4)
-
-    train_sampler = PairedDistributedSampler(*get_pos_neg_sample_indices(dataset=train_data))
+    train_weights, train_samples_per_epoch = calculate_sample_weigths(dataset=train_data)
+    train_sampler = WeightedRandomDistributedSampler(weights=train_weights, num_samples=train_samples_per_epoch, seed=global_seed, replacement=False)
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4)
+
+    # train_sampler = PairedDistributedSampler(*get_pos_neg_sample_indices(dataset=train_data))
+    # train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4)
 
     best_f1 = -1e1
 
