@@ -8,6 +8,7 @@ import argparse
 import json
 import os
 import torch
+from torch.utils.data import WeightedRandomSampler
 
 # Importing from local modules
 from tools import write2csv, setup_paths, setup_seed, log_metrics, Logger
@@ -15,6 +16,23 @@ from dataset import get_data
 from method import AdaCLIP_Trainer
 
 setup_seed(111)
+
+def calculate_sample_weigths(dataset):
+    all_labels = []
+    for datum in dataset.data_all:
+        all_labels.append(datum['anomaly'])
+    pos_count = all_labels.count(1)
+    neg_count = len(all_labels) - pos_count
+    neg_weight = (pos_count/4) / neg_count
+    weights = []
+    for label in all_labels:
+        weights.append(1 if label else neg_weight)
+    # pos_weight = 
+    # print(len(dataset), len(all_labels), pos_count, neg_count, neg_weight, neg_weight*neg_count, pos_count)
+    # print(sum(weights), sum(weights)/len(weights))
+    # print(weights[:100])
+    # raise
+    return weights, pos_count
 
 def train(args):
     # Configurations
@@ -79,7 +97,11 @@ def train(args):
     # logger.info('Data Root: training, {:}; testing, {:}'.format(train_data_root, test_data_root))
     logger.info('Data Root: training, {:}'.format(train_data_root))
 
-    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4)
+    train_weights, train_samples_per_epoch = calculate_sample_weigths(dataset=train_data)
+    train_sampler = WeightedRandomSampler(weights=train_weights, num_samples=train_samples_per_epoch, replacement=False)
+    # train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
+    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4)
+    # train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4)
     # test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=4)
 
     # Typically, we use MVTec or VisA as the validation set. The best model from this validation
