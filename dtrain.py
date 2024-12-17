@@ -13,8 +13,8 @@ from torch.utils.data import WeightedRandomSampler
 import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-# from WRDS import WeightedRandomDistributedSampler
-from PDS import PairedDistributedSampler
+from WRDS import WeightedRandomDistributedSampler
+# from PDS import PairedDistributedSampler
 
 # Importing from local modules
 from tools import write2csv, setup_paths, setup_seed, log_metrics, Logger
