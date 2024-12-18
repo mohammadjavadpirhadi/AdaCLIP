@@ -106,6 +106,8 @@ def train(args):
     # process is then used for zero-shot anomaly detection on novel categories.
     best_f1 = -1e1
 
+    model.load("/kaggle/working/pretrained_mvtec_resized_3.pth")
+
     for epoch in range(epochs):
         loss = model.train_epoch(train_dataloader)
 
