@@ -108,7 +108,7 @@ def train(args):
 
     model.load("/kaggle/working/pretrained_mvtec_resized_3.pth")
 
-    for epoch in range(epochs):
+    for epoch in range(5, 5+epochs):
         loss = model.train_epoch(train_dataloader)
 
         ckp_path_epoch = ckp_path + f'_{epoch}.pth'
