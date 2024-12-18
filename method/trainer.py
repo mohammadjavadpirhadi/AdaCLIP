@@ -16,7 +16,7 @@ class AdaCLIP_Trainer(nn.Module):
             backbone, feat_list, input_dim, output_dim,
 
             # learning-related
-            learning_rate, device, image_size,
+            learning_rate, device, image_size, output_image_size,
 
             # model settings
             prompting_depth=3, prompting_length=2,
@@ -29,6 +29,7 @@ class AdaCLIP_Trainer(nn.Module):
         self.device = device
         self.feat_list = feat_list
         self.image_size = image_size
+        self.output_image_size = output_image_size
         self.prompting_branch = prompting_branch
         self.prompting_type = prompting_type
 
@@ -36,7 +37,7 @@ class AdaCLIP_Trainer(nn.Module):
         self.loss_dice = BinaryDiceLoss()
 
         ########### different model choices
-        freeze_clip, _, self.preprocess = create_model_and_transforms(backbone, image_size,
+        freeze_clip, _, self.preprocess = create_model_and_transforms(backbone, image_size, 
                                                                       pretrained='openai')
         freeze_clip  = freeze_clip.to(device)
         freeze_clip.eval()
@@ -52,11 +53,16 @@ class AdaCLIP_Trainer(nn.Module):
                                   k_clusters=k_clusters,
                                   output_layers=feat_list,
                                   device=device,
-                                  image_size=image_size).to(device)
+                                  output_image_size=output_image_size).to(device)
 
+        # self.transform = transforms.Compose([
+        #     transforms.Resize((image_size, image_size)),
+        #     transforms.CenterCrop(image_size),
+        #     transforms.ToTensor()
+        # ])
         self.transform = transforms.Compose([
-            transforms.Resize((image_size, image_size)),
-            transforms.CenterCrop(image_size),
+            transforms.Resize((output_image_size, output_image_size)),
+            transforms.CenterCrop(output_image_size),
             transforms.ToTensor()
         ])
 

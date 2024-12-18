@@ -334,7 +334,7 @@ class AdaCLIP(nn.Module):
     def __init__(self, freeze_clip: CLIP, text_channel: int, visual_channel: int,
                  prompting_length: int, prompting_depth: int, prompting_branch: str, prompting_type: str,
                  use_hsf: bool, k_clusters: int,
-                 output_layers: list, device: str, image_size: int):
+                 output_layers: list, device: str, output_image_size: int):
         super(AdaCLIP, self).__init__()
         self.freeze_clip = freeze_clip
 
@@ -400,7 +400,7 @@ class AdaCLIP(nn.Module):
         if self.use_hsf:
             self.HSF = HybridSemanticFusion(k_clusters)
 
-        self.image_size = image_size
+        self.output_image_size = output_image_size
         self.device = device
 
     def generate_and_set_dynamic_promtps(self, image):
@@ -532,7 +532,7 @@ class AdaCLIP(nn.Module):
             B, L, C = anomaly_maps[i].shape
             H = int(np.sqrt(L))
             anomaly_maps[i] = anomaly_maps[i].permute(0, 2, 1).view(B, 2, H, H)
-            anomaly_maps[i] = F.interpolate(anomaly_maps[i], size=self.image_size, mode='bilinear', align_corners=True)
+            anomaly_maps[i] = F.interpolate(anomaly_maps[i], size=self.output_image_size, mode='bilinear', align_corners=True)
 
         if aggregation: # in the test stage, we firstly aggregate logits from all hierarchies and then do the softmax normalization
             anomaly_map = torch.mean(torch.stack(anomaly_maps, dim=1), dim=1)

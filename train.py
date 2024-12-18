@@ -40,6 +40,7 @@ def train(args):
     learning_rate = args.learning_rate
     batch_size = args.batch_size
     image_size = args.image_size
+    output_image_size =  args.output_image_size
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     save_fig = args.save_fig
@@ -74,6 +75,7 @@ def train(args):
         learning_rate=learning_rate,
         device=device,
         image_size=image_size,
+        output_image_size=output_image_size,
         prompting_depth=args.prompting_depth,
         prompting_length=args.prompting_length,
         prompting_branch=args.prompting_branch,
@@ -179,6 +181,7 @@ if __name__ == '__main__':
     parser.add_argument("--batch_size", type=int, default=1, help="Batch size (default: 1)")
 
     parser.add_argument("--image_size", type=int, default=518, help="Size of the input images (default: 518)")
+    parser.add_argument("--output_image_size", type=int, default=224, help="Size of the output masks (default: 224)")
     parser.add_argument("--print_freq", type=int, default=1, help="Frequency of print statements (default: 1)")
     parser.add_argument("--valid_freq", type=int, default=1, help="Frequency of validation (default: 1)")
 
