@@ -5,7 +5,7 @@ gpu_id=0
 # on the validation set as the final model.
 
 # pre-trained on MVtec and colondb
-CUDA_VISIBLE_DEVICES=$gpu_id python train.py --save_fig False --training_data mvtec --testing_data mvtec --epoch 7
+CUDA_VISIBLE_DEVICES=$gpu_id python train.py --save_fig False --training_data mvtec --testing_data mvtec --epoch 5
 
 # # pre-trained on Visa and Clinicdb
 # CUDA_VISIBLE_DEVICES=$gpu_id python train.py --save_fig True --training_data visa clinicdb --testing_data mvtec
