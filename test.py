@@ -26,6 +26,7 @@ def train(args):
     # Configurations
     batch_size = args.batch_size
     image_size = args.image_size
+    output_image_size = args.output_image_size
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     save_fig = args.save_fig
@@ -57,6 +58,7 @@ def train(args):
         learning_rate=0.,
         device=device,
         image_size=image_size,
+        output_image_size=output_image_size,
         prompting_depth=args.prompting_depth,
         prompting_length=args.prompting_length,
         prompting_branch=args.prompting_branch,
@@ -94,49 +96,49 @@ def train(args):
             image_dir,
         )
 
-        for tag, data in metric_dict.items():
-            logger.info(
-                '{:>15} \t\tI-Auroc:{:.2f} \tI-F1:{:.2f} \tI-AP:{:.2f} \tP-Auroc:{:.2f} \tP-F1:{:.2f} \tP-AP:{:.2f}'.
-                    format(tag,
-                           data['auroc_im'],
-                           data['f1_im'],
-                           data['ap_im'],
-                           data['auroc_px'],
-                           data['f1_px'],
-                           data['ap_px'])
-            )
+        # for tag, data in metric_dict.items():
+        #     logger.info(
+        #         '{:>15} \t\tI-Auroc:{:.2f} \tI-F1:{:.2f} \tI-AP:{:.2f} \tP-Auroc:{:.2f} \tP-F1:{:.2f} \tP-AP:{:.2f}'.
+        #             format(tag,
+        #                    data['auroc_im'],
+        #                    data['f1_im'],
+        #                    data['ap_im'],
+        #                    data['auroc_px'],
+        #                    data['f1_px'],
+        #                    data['ap_px'])
+        #     )
 
 
-        for k in metric_dict.keys():
-            write2csv(metric_dict[k], test_data_cls_names, k, csv_path)
+        # for k in metric_dict.keys():
+        #     write2csv(metric_dict[k], test_data_cls_names, k, csv_path)
 
-    elif args.testing_model == 'image':
-        assert os.path.isfile(args.image_path), f"Please verify the input image path: {args.image_path}"
-        ori_image = cv2.resize(cv2.imread(args.image_path), (args.image_size, args.image_size))
-        pil_img = Image.open(args.image_path).convert('RGB')
+    # elif args.testing_model == 'image':
+    #     assert os.path.isfile(args.image_path), f"Please verify the input image path: {args.image_path}"
+    #     ori_image = cv2.resize(cv2.imread(args.image_path), (args.image_size, args.image_size))
+    #     pil_img = Image.open(args.image_path).convert('RGB')
 
-        img_input = model.preprocess(pil_img).unsqueeze(0)
-        img_input = img_input.to(model.device)
+    #     img_input = model.preprocess(pil_img).unsqueeze(0)
+    #     img_input = img_input.to(model.device)
 
-        with torch.no_grad():
-            anomaly_map, anomaly_score = model.clip_model(img_input, [args.class_name], aggregation=True)
+    #     with torch.no_grad():
+    #         anomaly_map, anomaly_score = model.clip_model(img_input, [args.class_name], aggregation=True)
 
-        anomaly_map = anomaly_map[0, :, :]
-        anomaly_score = anomaly_score[0]
-        anomaly_map = anomaly_map.cpu().numpy()
-        anomaly_score = anomaly_score.cpu().numpy()
+    #     anomaly_map = anomaly_map[0, :, :]
+    #     anomaly_score = anomaly_score[0]
+    #     anomaly_map = anomaly_map.cpu().numpy()
+    #     anomaly_score = anomaly_score.cpu().numpy()
 
-        anomaly_map = gaussian_filter(anomaly_map, sigma=4)
-        anomaly_map = anomaly_map * 255
-        anomaly_map = anomaly_map.astype(np.uint8)
+    #     anomaly_map = gaussian_filter(anomaly_map, sigma=4)
+    #     anomaly_map = anomaly_map * 255
+    #     anomaly_map = anomaly_map.astype(np.uint8)
 
-        heat_map = cv2.applyColorMap(anomaly_map, cv2.COLORMAP_JET)
-        vis_map = cv2.addWeighted(heat_map, 0.5, ori_image, 0.5, 0)
+    #     heat_map = cv2.applyColorMap(anomaly_map, cv2.COLORMAP_JET)
+    #     vis_map = cv2.addWeighted(heat_map, 0.5, ori_image, 0.5, 0)
 
-        vis_map = cv2.hconcat([ori_image, vis_map])
-        save_path = os.path.join(args.save_path, args.save_name)
-        print(f"Anomaly detection results are saved in {save_path}, with an anomaly of {anomaly_score:.3f} ")
-        cv2.imwrite(save_path, vis_map)
+    #     vis_map = cv2.hconcat([ori_image, vis_map])
+    #     save_path = os.path.join(args.save_path, args.save_name)
+    #     print(f"Anomaly detection results are saved in {save_path}, with an anomaly of {anomaly_score:.3f} ")
+    #     cv2.imwrite(save_path, vis_map)
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -176,6 +178,7 @@ if __name__ == '__main__':
     # Hyper-parameters
     parser.add_argument("--batch_size", type=int, default=1, help="Batch size (default: 1)")
     parser.add_argument("--image_size", type=int, default=518, help="Size of the input images (default: 518)")
+    parser.add_argument("--output_image_size", type=int, default=224, help="Size of the output masks (default: 224)")
 
     # Prompting parameters
     parser.add_argument("--prompting_depth", type=int, default=4, help="Depth of prompting (default: 4)")
