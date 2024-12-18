@@ -96,12 +96,8 @@ def train(args):
 
     # logger.info('Data Root: training, {:}; testing, {:}'.format(train_data_root, test_data_root))
     logger.info('Data Root: training, {:}'.format(train_data_root))
-
-    train_weights, train_samples_per_epoch = calculate_sample_weigths(dataset=train_data)
-    train_sampler = WeightedRandomSampler(weights=train_weights, num_samples=train_samples_per_epoch, replacement=False)
-    # train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
-    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, sampler=train_sampler, num_workers=4)
-    # train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4)
+    
+    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4)
     # test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=4)
 
     # Typically, we use MVTec or VisA as the validation set. The best model from this validation
