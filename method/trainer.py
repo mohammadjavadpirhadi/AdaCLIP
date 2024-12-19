@@ -133,13 +133,13 @@ class AdaCLIP_Trainer(nn.Module):
         classification_loss = self.loss_focal(anomaly_score, is_anomaly.unsqueeze(1))
         loss += classification_loss
 
-        # seg loss
-        seg_loss = 0
-        for am, in zip(anomaly_map):
-            seg_loss += (self.loss_focal(am, gt) + self.loss_dice(am[:, 1, :, :], gt) +
-                         self.loss_dice(am[:, 0, :, :], 1-gt))
+        # # seg loss
+        # seg_loss = 0
+        # for am, in zip(anomaly_map):
+        #     seg_loss += (self.loss_focal(am, gt) + self.loss_dice(am[:, 1, :, :], gt) +
+        #                  self.loss_dice(am[:, 0, :, :], 1-gt))
 
-        loss += seg_loss
+        # loss += seg_loss
 
         self.optimizer.zero_grad()
         loss.backward()
